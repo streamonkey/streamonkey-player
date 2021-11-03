@@ -1,5 +1,5 @@
 //@ts-ignore
-const AudioContext = window.AudioContext || window.webkitAudioContext
+const AudioContext = global.AudioContext || global.webkitAudioContext
 
 const sleep = (time: number) => {
     return new Promise((resolve) => {
@@ -58,10 +58,10 @@ export interface Options {
     queryParams: Record<string, string>
 }
 
-const ctx = new AudioContext()
 export class StreamPlayer extends EventTarget {
-    private gain = ctx.createGain()
-    private analyzer = ctx.createAnalyser()
+    private ctx = new AudioContext()
+    private gain = this.ctx.createGain()
+    private analyzer = this.ctx.createAnalyser()
     private streamurl: string = ""
     private socketurl: string = ""
     private historyurl: string = ""
@@ -134,7 +134,7 @@ export class StreamPlayer extends EventTarget {
         if (this._playing) return
 
         await this.initialization
-        await ctx.resume()
+        await this.ctx.resume()
 
         this.audio = document.createElement("audio")
         document.body.append(this.audio)
@@ -145,9 +145,9 @@ export class StreamPlayer extends EventTarget {
 
         this.audio.volume = 1
 
-        this.src = ctx.createMediaElementSource(this.audio)
+        this.src = this.ctx.createMediaElementSource(this.audio)
 
-        this.src.connect(this.analyzer).connect(ctx.destination)
+        this.src.connect(this.analyzer).connect(this.ctx.destination)
 
         this.connectWebsocket()
 
