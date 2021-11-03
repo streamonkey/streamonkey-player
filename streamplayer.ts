@@ -204,7 +204,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
     private setMediaSession() {
         if (this.options.useMediaSession && "mediaSession" in navigator && navigator.mediaSession) {
-            navigator.mediaSession.setActionHandler("play", this.play)
+            navigator.mediaSession.setActionHandler("play", () => this.play())
             navigator.mediaSession.setActionHandler("pause", this.stop)
             navigator.mediaSession.setActionHandler("stop", this.stop)
         }
