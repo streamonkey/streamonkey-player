@@ -6,7 +6,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Test</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <script src='dist/streamclient.js'></script>
+    <script src='browser/browserwrapper.js'></script>
 </head>
 
 <body>
@@ -14,7 +14,9 @@
     <button id="stop">Stop</button>
 
     <script>
-        streamPlayer = new StreamClient("absolut-top")
+        streamPlayer = new StreamPlayer("absolut-top", {
+            aggregator: "Test"
+        })
 
         streamPlayer.addEventListener("currentchange", (e) => {
             console.log(e.detail);

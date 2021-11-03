@@ -1,4 +1,13 @@
 import ts from "@rollup/plugin-typescript"
+import { mkdirSync } from "fs"
+
+mkdirSync("browser", {
+    recursive: true
+})
+
+mkdirSync("dist", {
+    recursive: true
+})
 
 /**
  * @type import("rollup").RollupOptions
@@ -6,7 +15,7 @@ import ts from "@rollup/plugin-typescript"
 const config = {
     input: "browserwrapper.ts",
     output: {
-        dir: "browser",
+        file: "browser/streamplayer.js",
         format: "iife"
     },
     plugins: [

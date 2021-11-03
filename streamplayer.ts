@@ -44,7 +44,7 @@ interface SocketMeta {
 export interface Meta {
     title: string
     artist: string
-    coverURL: string | undefined
+    coverURL: string
 }
 
 type ArtworkSize = `${number}x${number}`
@@ -59,7 +59,7 @@ export interface Options {
 }
 
 const ctx = new AudioContext()
-export class StreamClient extends EventTarget {
+export class StreamPlayer extends EventTarget {
     private gain = ctx.createGain()
     private analyzer = ctx.createAnalyser()
     private streamurl: string = ""
@@ -73,7 +73,7 @@ export class StreamClient extends EventTarget {
     private options: Options = {
         coverSize: "400x400",
         useCovers: true,
-        aggregator: "streaMonkey stream player",
+        aggregator: "",
         useMediaSession: true,
         fallbackCover: "https://player.streamonkey.net/logo_monkey.svg",
         queryParams: {}
@@ -84,13 +84,13 @@ export class StreamClient extends EventTarget {
     public static loadbalancer = "frontend.streamonkey.net"
 
     private async initURL(channel: string) {
-        const lbURL = new URL(`https://${StreamClient.loadbalancer}/${channel}/stream/mp3`)
+        const lbURL = new URL(`https://${StreamPlayer.loadbalancer}/${channel}`)
 
         Object.entries(this.options.queryParams).forEach(([k, v]) => lbURL.searchParams.set(k, v))
 
         lbURL.searchParams.set("aggregator", this.options.aggregator)
 
-        this.historyurl = `https://${StreamClient.loadbalancer}/${channel}/history`
+        this.historyurl = `https://${StreamPlayer.loadbalancer}/${channel}/history`
 
         const res = await fetch(lbURL.toString(), { method: "HEAD" })
 
@@ -107,6 +107,10 @@ export class StreamClient extends EventTarget {
         super()
         Object.assign(this.options, options)
 
+        if (!this.options.aggregator) {
+            throw new Error("aggregator must be set!")
+        }
+
         this.initialization = this.initURL(channel)
 
         this.analyzer.fftSize = Math.pow(2, 10)
@@ -116,6 +120,8 @@ export class StreamClient extends EventTarget {
         this.gain.gain.value = 1
 
         this.getHistory()
+
+        this.setMediaSession()
     }
 
     private _playing = false

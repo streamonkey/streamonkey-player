@@ -1,4 +1,4 @@
-import { StreamClient } from "./streamplayer"
+import { StreamPlayer } from "./streamplayer"
 
 //@ts-ignore
-window.StreamClient = StreamClient
+window.StreamPlayer = StreamPlayer
