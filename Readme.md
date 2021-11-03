@@ -1,7 +1,5 @@
 # streaMonkey Player
 
-see [test.html](test.html) for a usage example
-
 this module exports `StreamPlayer`
 
 ```ts
@@ -59,4 +57,43 @@ export interface Meta {
     artist: string
     coverURL: string // url for the album cover, either downloaded or the fallbackURL
 }
+```
+
+## Visualization Data
+
+internally, this module uses the [Web AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) and specifically the [AnalyzerNode](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) to get the Frequency Data.
+
+Access the Data by passing a `UInt8Array` to the instances `.fft()` function
+
+```ts
+// size can be up to 512, but then the upper frequencies will not change much, which may not be desired
+const fftData = new Uint8Array(200)
+
+function loop() {
+    // this will mutate the fftData:
+    streamPlayer.fft(fftData)
+
+    // do something with the fftData
+
+    requestAnimationFrame(loop)
+}
+
+loop()
+```
+
+## Coverarts
+
+if the coverarts are used, they are fetched from `player.streamonkey.net` which acts as a Proxy to iTunes search API.
+Currently, the returned coverarts all point to iTunes' CDN 
+
+## Advanced Usage
+
+### Override the used domain:
+
+```ts
+StreamPlayer.loadbalancer = "mycustomlb.de"
+
+const player = StreamPlayer("mychannel", {
+    aggregator: "website"
+})
 ```
