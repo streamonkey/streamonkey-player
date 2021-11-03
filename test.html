@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src='dist/streamclient.js'></script>
+</head>
+
+<body>
+    <button id="play">Play</button>
+    <button id="stop">Stop</button>
+
+    <script>
+        streamPlayer = new StreamClient("absolut-top")
+
+        streamPlayer.addEventListener("currentchange", (e) => {
+            console.log(e.detail);
+        })
+
+        streamPlayer.addEventListener("historychange", (e) => {
+            console.log(e.detail);
+        })
+
+        const play = document.querySelector("#play")
+        const stop = document.querySelector("#stop")
+
+        play.addEventListener("click", () => {
+            streamPlayer.play()
+        })
+        stop.addEventListener("click", () => {
+            streamPlayer.stop()
+        })
+
+        const fftData = new Uint8Array(200)
+
+        function loop() {
+            streamPlayer.fft(fftData)
+
+            console.log(fftData);
+        }
+
+        setInterval(loop, 1000)
+    </script>
+</body>
+
+</html>

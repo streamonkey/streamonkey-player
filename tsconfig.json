@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "strict": true,
+        "declaration": true,
+        "outDir": "dist"
+    },
+    "exclude": [
+        "browserwrapper.ts",
+        "node_modules",
+        "browser",
+        "dist"
+    ]
+}

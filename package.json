@@ -1,0 +1,23 @@
+{
+  "name": "streamonkey-player",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/streamplayer.js",
+  "scripts": {
+    "build": "npm run build-browser && npm run build-esm",
+    "build-esm": "tsc -p .",
+    "build-browser": "rollup -c",
+    "watch": "rollup -c -w",
+    "clean": "rm -rf browser dist",
+    "prepublishOnly": "npm run build"
+  },
+  "type": "module",
+  "types": "dist/streamclient.d.ts",
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.0",
+    "rollup": "^2.59.0",
+    "typescript": "^4.4.4"
+  }
+}
