@@ -76,10 +76,15 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private streamurl: string = ""
     private socketurl: string = ""
     private historyurl: string = ""
-    private edge: string = ""
+    public edge: string = ""
     private initialization: Promise<void>
     private audio: HTMLAudioElement | null = null
     private src: MediaElementAudioSourceNode | null = null
+    private lbRes: Response | null = null
+
+    get response() {
+        return this.lbRes
+    }
 
     private options: Options = {
         coverSize: "400x400",
@@ -103,9 +108,9 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         this.historyurl = `https://${StreamPlayer.loadbalancer}/${channel}/history`
 
-        const res = await fetch(lbURL.toString(), { method: "HEAD" })
+        this.lbRes = await fetch(lbURL.toString(), { method: "HEAD" })
 
-        this.streamurl = res.url
+        this.streamurl = this.lbRes.url
 
         const edgeURL = new URL(this.streamurl)
 
@@ -114,7 +119,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this.socketurl = `wss://${this.edge}/wstitleupdate`
     }
 
-    constructor(channel: string, options: Partial<Options>) {
+    constructor(private channel: string, options: Partial<Options>) {
         super()
         Object.assign(this.options, options)
 
@@ -141,7 +146,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         return this._playing
     }
 
-    public async play() {
+    public async play(time?: Date) {
         if (this._playing) return
 
         await this.initialization
@@ -152,7 +157,17 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this.audio.style.display = "none"
         this.audio.crossOrigin = "use-credentials"
 
-        this.audio.src = this.streamurl + noCache()
+        let url = this.streamurl
+
+        if (time) {
+            const tsURL = new URL(this.streamurl)
+
+            tsURL.href = `/${this.channel}/stream/mp3/${time.getFullYear()}/${time.getMonth()}/${time.getDate()}/${time.getHours()}/${time.getMinutes()}/${time.getSeconds()}`
+
+            url = tsURL.toString()
+        }
+
+        this.audio.src = url + noCache()
 
         this.audio.volume = 1
 
