@@ -12,7 +12,7 @@
     "prepublishOnly": "npm run build"
   },
   "type": "module",
-  "types": "dist/streamclient.d.ts",
+  "types": "dist/streamplayer.d.ts",
   "author": "",
   "license": "ISC",
   "devDependencies": {

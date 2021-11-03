@@ -10,6 +10,7 @@
         "browserwrapper.ts",
         "node_modules",
         "browser",
-        "dist"
+        "dist",
+        "test.ts"
     ]
 }

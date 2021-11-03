@@ -1,3 +1,5 @@
+import { TypedEmitter } from "./typedEventTarget"
+
 //@ts-ignore
 const AudioContext = global.AudioContext || global.webkitAudioContext
 
@@ -58,7 +60,12 @@ export interface Options {
     queryParams: Record<string, string>
 }
 
-export class StreamPlayer extends EventTarget {
+interface MetaEvents {
+    currentchange: Meta
+    historychange: Meta[]
+}
+
+export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private ctx = new AudioContext()
     private gain = this.ctx.createGain()
     private analyzer = this.ctx.createAnalyser()
@@ -202,13 +209,11 @@ export class StreamPlayer extends EventTarget {
 
             const cover = json.cover_url != "" ? json.cover_url : await this.getCoverURL(json.title, json.artist)
 
-            this.dispatchEvent(new CustomEvent<Meta>("currentchange", {
-                detail: {
-                    artist: json.artist,
-                    coverURL: cover,
-                    title: json.title
-                }
-            }))
+            this.dispatchEvent("currentchange", {
+                artist: json.artist,
+                coverURL: cover,
+                title: json.title
+            })
 
             const shortHist = this.history.slice(0, 2).map(m => m.title + m.artist)
 
@@ -219,9 +224,7 @@ export class StreamPlayer extends EventTarget {
                     title: json.title
                 })
 
-                this.dispatchEvent(new CustomEvent<Meta[]>("historychange", {
-                    detail: this.history
-                }))
+                this.dispatchEvent("historychange", this.history)
             }
 
             if (this.options.useMediaSession) {
@@ -284,9 +287,7 @@ export class StreamPlayer extends EventTarget {
             }
         }))
 
-        this.dispatchEvent(new CustomEvent<Meta[]>("historychange", {
-            detail: this.history
-        }))
+        this.dispatchEvent("historychange", this.history)
     }
 
     set volume(vol: number) {
