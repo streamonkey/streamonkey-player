@@ -10,7 +10,7 @@ const sleep = (time: number) => {
 }
 
 const noCache = () => {
-    return "?nocache=" + Math.random().toString().slice(2)
+    return Math.random().toString().slice(2)
 }
 
 interface CoverResponse {
@@ -154,17 +154,17 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this.audio.style.display = "none"
         this.audio.crossOrigin = "use-credentials"
 
-        let url = this.streamurl
+        let url = new URL(this.streamurl)
 
         if (time) {
-            const tsURL = new URL(this.streamurl)
+            // change pathname to /channel/stream/mp3/year/month/day/hour/minute/second
 
-            tsURL.pathname = `/${this.channel}/stream/mp3/${time.getFullYear()}/${time.getMonth()}/${time.getDate()}/${time.getHours()}/${time.getMinutes()}/${time.getSeconds()}`
-
-            url = tsURL.toString()
+            url.pathname = `/${this.channel}/stream/mp3/${time.getUTCFullYear()}/${time.getUTCMonth() + 1}/${time.getUTCDate()}/${time.getUTCHours()}/${time.getUTCMinutes()}/${time.getUTCSeconds()}`
         }
 
-        this.audio.src = url + noCache()
+        url.searchParams.set("nocache", noCache())
+
+        this.audio.src = url.toString()
 
         this.audio.volume = 1
 
@@ -172,7 +172,10 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         this.src.connect(this.analyzer).connect(this.ctx.destination)
 
-        this.connectWebsocket()
+        // connect the websocket only after the audio is loaded
+        this.audio.addEventListener("loadeddata", () => {
+            this.connectWebsocket()
+        })
 
         this.audio.play()
 

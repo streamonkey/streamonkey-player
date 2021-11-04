@@ -29,6 +29,12 @@ interface Options {
 }
 ```
 
+## Basic Usage
+
+The instance exposes `play()` and `pause()` methods to start and stop the stream
+
+`play()` accepts an optional `Date` instance that will be used for timeshifting
+
 ## Events
 
 The instance of the `StreamPlayer` is an `EventEmitter` and dispatches 2 Custom Events:

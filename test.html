@@ -6,14 +6,17 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Test</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <script src='browser/browserwrapper.js'></script>
+    <script src='browser/streamplayer.js'></script>
 </head>
 
 <body>
     <button id="play">Play</button>
     <button id="stop">Stop</button>
+    <button id="timeshift">Timeshift - 5min</button>
 
     <script>
+
+        let history = []
         streamPlayer = new StreamPlayer("absolut-top", {
             aggregator: "Test"
         })
@@ -23,17 +26,22 @@
         })
 
         streamPlayer.addEventListener("historychange", (e) => {
+            history = e.detail
             console.log(e.detail);
         })
 
         const play = document.querySelector("#play")
         const stop = document.querySelector("#stop")
+        const ts = document.querySelector("#timeshift")
 
         play.addEventListener("click", () => {
             streamPlayer.play()
         })
         stop.addEventListener("click", () => {
             streamPlayer.stop()
+        })
+        ts.addEventListener("click", () => {
+            streamPlayer.play(history[5].time)
         })
 
         const fftData = new Uint8Array(200)
