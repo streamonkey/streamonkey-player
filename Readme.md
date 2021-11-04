@@ -1,6 +1,25 @@
 # streaMonkey Player
 
+This module provides a JS client library to connect to a radio stream hosted by [streaMonkey](https://www.streamonkey.de/en). It connects to the stream, fetches the history and the current title.
+
+Optionally, it uses the iTunes Search Api to get cover URLs for each audio. 
+## include
+
 this module exports `StreamPlayer`
+
+```ts
+import {StreamPlayer} from "streamonkey-player"
+```
+
+alternatively there is a Browser ready version available for inclusion via a script Tag
+
+```html
+<script src="https://player.streamonkey.net/streamplayer.js"></script>
+```
+
+Or in this modules `browser` folder
+
+## Basic Usage
 
 ```ts
 const player = new StreamPlayer("channel", {
@@ -28,8 +47,6 @@ interface Options {
     queryParams: Record<string, string> 
 }
 ```
-
-## Basic Usage
 
 The instance exposes `play()` and `pause()` methods to start and stop the stream
 
@@ -69,10 +86,9 @@ export interface Meta {
 
 internally, this module uses the [Web AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) and specifically the [AnalyzerNode](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) to get the Frequency Data.
 
-Access the Data by passing a `UInt8Array` to the instances `.fft()` function
+Access the Data by passing a `UInt8Array` to the instances `.fft()` function. The size can be up to 512, but then the upper frequencies will not change much, which may not be desired.
 
 ```ts
-// size can be up to 512, but then the upper frequencies will not change much, which may not be desired
 const fftData = new Uint8Array(200)
 
 function loop() {
