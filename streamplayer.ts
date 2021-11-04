@@ -47,10 +47,7 @@ export interface Meta {
     title: string
     artist: string
     coverURL: string
-}
-
-export interface HistoryEntry extends Meta {
-    time: string
+    time: Date
 }
 
 type ArtworkSize = `${number}x${number}`
@@ -66,7 +63,7 @@ export interface Options {
 
 interface MetaEvents {
     currentchange: Meta
-    historychange: HistoryEntry[]
+    historychange: Meta[]
 }
 
 export class StreamPlayer extends TypedEmitter<MetaEvents> {
@@ -95,7 +92,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         queryParams: {}
     }
 
-    public history: HistoryEntry[] = []
+    public history: Meta[] = []
 
     public static loadbalancer = "frontend.streamonkey.net"
 
@@ -231,7 +228,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             this.dispatchEvent("currentchange", {
                 artist: json.artist,
                 coverURL: cover,
-                title: json.title
+                title: json.title,
+                time: new Date()
             })
 
             this.getHistory()
@@ -293,7 +291,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
                 title: v.MetaSong,
                 artist: v.MetaArtist,
                 coverURL: cover,
-                time: v.InsertDate
+                time: new Date(v.InsertDate)
             }
         }))
 
