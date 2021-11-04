@@ -1,7 +1,7 @@
 import { TypedEmitter } from "./typedEventTarget"
 
 //@ts-ignore
-const AudioContext = global.AudioContext || global.webkitAudioContext
+const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext
 
 const sleep = (time: number) => {
     return new Promise((resolve) => {
