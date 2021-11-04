@@ -159,7 +159,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         if (time) {
             const tsURL = new URL(this.streamurl)
 
-            tsURL.href = `/${this.channel}/stream/mp3/${time.getFullYear()}/${time.getMonth()}/${time.getDate()}/${time.getHours()}/${time.getMinutes()}/${time.getSeconds()}`
+            tsURL.pathname = `/${this.channel}/stream/mp3/${time.getFullYear()}/${time.getMonth()}/${time.getDate()}/${time.getHours()}/${time.getMinutes()}/${time.getSeconds()}`
 
             url = tsURL.toString()
         }
