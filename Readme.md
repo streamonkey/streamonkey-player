@@ -52,6 +52,8 @@ The instance exposes `play()` and `pause()` methods to start and stop the stream
 
 `play()` accepts an optional `Date` instance that will be used for timeshifting
 
+the instances `volume` property is a getter and setter for the volume of the stream. Recommended values are 0-1, but it will accept more
+
 ## Events
 
 The instance of the `StreamPlayer` is an `EventEmitter` and dispatches 2 Custom Events:

@@ -172,7 +172,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         this.src = this.ctx.createMediaElementSource(this.audio)
 
-        this.src.connect(this.analyzer).connect(this.ctx.destination)
+        this.src.connect(this.gain).connect(this.analyzer).connect(this.ctx.destination)
 
         // connect the websocket only after the audio is loaded
         this.audio.addEventListener("loadeddata", () => {

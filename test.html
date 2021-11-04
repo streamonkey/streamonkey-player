@@ -13,6 +13,7 @@
     <button id="play">Play</button>
     <button id="stop">Stop</button>
     <button id="timeshift">Timeshift - 5min</button>
+    <input type="range" min="0" max="1" step="0.01" id="vol">
 
     <script>
 
@@ -33,6 +34,7 @@
         const play = document.querySelector("#play")
         const stop = document.querySelector("#stop")
         const ts = document.querySelector("#timeshift")
+        const vol = document.querySelector("#vol")
 
         play.addEventListener("click", () => {
             streamPlayer.play()
@@ -42,6 +44,10 @@
         })
         ts.addEventListener("click", () => {
             streamPlayer.play(history[5].time)
+        })
+
+        vol.addEventListener("input", () => {
+            streamPlayer.volume = vol.value
         })
 
         const fftData = new Uint8Array(200)
