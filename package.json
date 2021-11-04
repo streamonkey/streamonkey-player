@@ -1,6 +1,6 @@
 {
   "name": "streamonkey-player",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "",
   "main": "dist/streamplayer.js",
   "scripts": {
