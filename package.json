@@ -1,7 +1,7 @@
 {
   "name": "streamonkey-player",
   "version": "1.0.13",
-  "description": "",
+  "description": "a library to help connecting to a streaMonkey web stream",
   "main": "dist/streamplayer.js",
   "scripts": {
     "build": "npm run build-browser && npm run build-esm",
@@ -13,8 +13,8 @@
   },
   "type": "module",
   "types": "dist/streamplayer.d.ts",
-  "author": "",
-  "license": "ISC",
+  "author": "Wilhelm Bartel <wilhelm.bartel@streamonkey.de>",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.0",
     "@types/node": "^16.11.6",
