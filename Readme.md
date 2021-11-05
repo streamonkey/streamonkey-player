@@ -48,7 +48,7 @@ interface Options {
 }
 ```
 
-The instance exposes `play()` and `pause()` methods to start and stop the stream
+The instance exposes `play()` and `stop()` methods to start and stop the stream
 
 `play()` accepts an optional `Date` instance that will be used for timeshifting
 
