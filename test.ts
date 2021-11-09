@@ -1,4 +1,4 @@
-import { StreamPlayer } from "./streamplayer"
+import { StreamPlayer } from "./streamplayer.js"
 
 const player = new StreamPlayer("foo", {
     aggregator: ""

@@ -1,4 +1,4 @@
-import { StreamPlayer } from "./streamplayer"
+import { StreamPlayer } from "./streamplayer.js"
 
 //@ts-ignore
 window.StreamPlayer = StreamPlayer

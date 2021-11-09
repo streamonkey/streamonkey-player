@@ -121,3 +121,9 @@ const player = StreamPlayer("mychannel", {
     aggregator: "website"
 })
 ```
+
+## Can you please add featureX?
+
+create an issue in the issue tracker in [GitHub](https://github.com/streamonkey/streamonkey-player/issues)
+
+or fork and create a pull request

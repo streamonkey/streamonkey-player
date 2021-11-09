@@ -21,7 +21,8 @@ const config = {
     plugins: [
         ts({
             tsconfig: "tsconfig.json",
-            outDir: "browser"
+            outDir: "browser",
+            tsBuildInfoFile: ".browser.tsbuildinfo"
         })
     ]
 }

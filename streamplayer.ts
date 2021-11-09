@@ -1,4 +1,4 @@
-import { TypedEmitter } from "./typedEventTarget"
+import { TypedEmitter } from "./typedEventTarget.js"
 
 //@ts-ignore
 const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext

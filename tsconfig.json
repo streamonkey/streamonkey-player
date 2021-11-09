@@ -4,7 +4,14 @@
         "module": "ESNext",
         "strict": true,
         "declaration": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "moduleResolution": "node",
+        "incremental": true,
+        "isolatedModules": true,
+        "removeComments": true,
+        "newLine": "lf",
+        "pretty": true,
+        "tsBuildInfoFile": ".tsbuildinfo"
     },
     "exclude": [
         "browserwrapper.ts",
