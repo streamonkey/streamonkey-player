@@ -215,6 +215,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private connectWebsocket = () => {
         this.socket?.close()
 
+        if (!this.playing) return
+
         this.socket = new WebSocket(this.socketurl)
 
         this.socket.onerror = async () => {
