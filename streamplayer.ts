@@ -144,10 +144,11 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     }
 
     public async play(time?: Date) {
-        if (this._playing) return
+        if (this.playing) return
 
-        await this.initialization
-        await this.ctx.resume()
+        if (this.streamurl == "") {
+            await this.initialization
+        }
 
         this.audio = document.createElement("audio")
         document.body.append(this.audio)
