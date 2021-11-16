@@ -1,6 +1,6 @@
 {
   "name": "streamonkey-player",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "a library to help connecting to a streaMonkey web stream",
   "main": "dist/streamplayer.js",
   "scripts": {
