@@ -1,4 +1,5 @@
 import { TypedEmitter } from "./typedEventTarget.js"
+import { MyStats, SocketMeta } from "./types.js"
 
 //@ts-ignore
 const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext
@@ -30,19 +31,6 @@ interface HistoryEntryRaw {
     MetaTitle: string
 }
 
-
-interface SocketMeta {
-    artist: string
-    class: string
-    companion_ad: null
-    cover_data: null
-    cover_url: string
-    master_id: string
-    start_time_unix: string
-    title: string
-    title_combined: string
-}
-
 export interface Meta {
     title: string
     artist: string
@@ -53,12 +41,12 @@ export interface Meta {
 type ArtworkSize = `${number}x${number}`
 
 export interface Options {
-    useCovers: boolean
-    coverSize: ArtworkSize
+    useCovers?: boolean
+    coverSize?: ArtworkSize
     aggregator: string
-    useMediaSession: boolean
-    fallbackCover: string
-    queryParams: Record<string, string>
+    useMediaSession?: boolean
+    fallbackCover?: string
+    queryParams?: Record<string, string>
 }
 
 interface MetaEvents {
@@ -66,13 +54,30 @@ interface MetaEvents {
     historychange: Meta[]
 }
 
+type FullOptions = Required<Options>
+type DefaultOptions = Omit<FullOptions, "aggregator">
+
+const defaultOptions: DefaultOptions = {
+    coverSize: "400x400",
+    useCovers: true,
+    useMediaSession: true,
+    fallbackCover: "https://player.streamonkey.net/logo_monkey.svg",
+    queryParams: {}
+}
+
+/**
+ * StreamPlayer emits two events:
+ * - `currentchange`: when the current song changes
+ * - `historychange`: when the history changes
+ */
 export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private ctx = new AudioContext()
     private gain = this.ctx.createGain()
     private analyzer = this.ctx.createAnalyser()
     private streamurl: string = ""
-    private socketurl: string = ""
+    private getSocketurl: ((id: string) => string) | null = null
     private historyurl: string = ""
+    private statsurl: string = ""
     public edge: string = ""
     private initialization: Promise<void>
     private audio: HTMLAudioElement | null = null
@@ -83,27 +88,20 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         return this.lbRes
     }
 
-    private options: Options = {
-        coverSize: "400x400",
-        useCovers: true,
-        aggregator: "",
-        useMediaSession: true,
-        fallbackCover: "https://player.streamonkey.net/logo_monkey.svg",
-        queryParams: {}
-    }
+    private options: FullOptions
 
     public history: Meta[] = []
 
     public static loadbalancer = "frontend.streamonkey.net"
 
-    private async initURL(channel: string) {
-        const lbURL = new URL(`https://${StreamPlayer.loadbalancer}/${channel}`)
+    private async initURLs() {
+        const lbURL = new URL(`https://${StreamPlayer.loadbalancer}/${this.channel}`)
 
         Object.entries(this.options.queryParams).forEach(([k, v]) => lbURL.searchParams.set(k, v))
 
         lbURL.searchParams.set("aggregator", this.options.aggregator)
 
-        this.historyurl = `https://${StreamPlayer.loadbalancer}/${channel}/history`
+        this.historyurl = `https://${StreamPlayer.loadbalancer}/${this.channel}/history`
 
         this.lbRes = await fetch(lbURL.toString(), { method: "HEAD" })
 
@@ -113,18 +111,25 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         this.edge = edgeURL.host
 
-        this.socketurl = `wss://${this.edge}/wstitleupdate`
+        this.getSocketurl = (id) => `wss://${this.edge}/wstitleupdate/${id}`
+        this.statsurl = `https://${this.edge}/${this.channel}/mystats`
     }
 
-    constructor(private channel: string, options: Partial<Options>) {
+    /**
+     * 
+     * @param channel the channel to connect to
+     * @param options 
+     */
+    constructor(private channel: string, options: Options) {
         super()
-        Object.assign(this.options, options)
 
-        if (!this.options.aggregator) {
-            throw new Error("aggregator must be set!")
+        if (!options.aggregator) {
+            throw new Error("options.aggregator must be set!")
         }
 
-        this.initialization = this.initURL(channel)
+        this.options = Object.assign(defaultOptions, options)
+
+        this.initialization = this.initURLs()
 
         this.analyzer.fftSize = Math.pow(2, 10)
         this.analyzer.maxDecibels = 0
@@ -139,13 +144,23 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
     private _playing = false
 
+    /**
+     * get the playing state
+     */
     public get playing() {
         return this._playing
     }
 
+    /**
+     * start the playback of the stream
+     * @param time the time of the stream to start at, if omitted will start at live
+     * @returns 
+     */
     public async play(time?: Date) {
         if (this.playing) return
 
+        // this check is necessary for safari, because it doesn't support await for creating an <audio> element
+        // if omitted, the playback will not start in safari
         if (this.streamurl == "") {
             await this.initialization
         }
@@ -177,7 +192,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         // connect the websocket only after the audio is loaded
         this.audio.addEventListener("loadeddata", () => {
-            this.connectWebsocket()
+            this.connectWebsocket().catch(() => { })
         })
 
         this.audio.play()
@@ -185,6 +200,11 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this._playing = true
     }
 
+    /**
+     * stop the playback of the stream
+     * can be restarted afterwards
+     * @returns
+     */
     public stop() {
         if (!this._playing) return
 
@@ -213,12 +233,34 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         }
     }
 
-    private connectWebsocket = () => {
+    private async getSessionID(): Promise<string> {
+        await this.initialization
+
+        if (!this._playing) throw new Error("Not playing")
+
+        const res = await fetch(this.statsurl, {
+            mode: "cors",
+            credentials: "include"
+        })
+
+        if (res.status != 200) {
+            await sleep(1000)
+            return await this.getSessionID()
+        }
+
+        const json: MyStats = await res.json()
+
+        return json.SessionId
+    }
+
+    private connectWebsocket = async () => {
         this.socket?.close()
 
-        if (!this.playing) return
+        if (!this.playing || this.getSocketurl == null) return
 
-        this.socket = new WebSocket(this.socketurl)
+        const sessionID = await this.getSessionID()
+
+        this.socket = new WebSocket(this.getSocketurl(sessionID))
 
         this.socket.onerror = async () => {
             this.socket?.close()
@@ -251,8 +293,6 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
                     ]
                 })
             }
-
-
         })
     }
 
@@ -306,14 +346,24 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this.dispatchEvent("historychange", this.history)
     }
 
+    /**
+     * set a new volume for the stream (range 0-1)
+     */
     set volume(vol: number) {
         this.gain.gain.value = vol
     }
 
+    /**
+     * get the current volume of the stream (range 0-1)
+     */
     get volume() {
         return this.gain.gain.value
     }
 
+    /**
+     * Fill the given array with the current spectrum data
+     * @param data a Uint8Array to which the fftdata will be written
+     */
     fft(data: Uint8Array) {
         this.analyzer.getByteFrequencyData(data)
     }

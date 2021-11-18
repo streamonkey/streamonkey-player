@@ -10,15 +10,17 @@
 </head>
 
 <body>
+    <h1>streaMonkey test player</h1>
     <button id="play">Play</button>
     <button id="stop">Stop</button>
     <button id="timeshift">Timeshift - 5min</button>
     <input type="range" min="0" max="1" step="0.01" id="vol">
 
-    <script>
+    <script lang="js">
 
         let history = []
-        streamPlayer = new StreamPlayer("absolut-top", {
+
+        const streamPlayer = new StreamPlayer("absolut-top", {
             aggregator: "Test"
         })
 
