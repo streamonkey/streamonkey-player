@@ -165,6 +165,9 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             await this.initialization
         }
 
+        // resume asynchronously to prevent safari playback not starting with "await"
+        this.ctx.resume()
+
         this.audio = document.createElement("audio")
         document.body.append(this.audio)
         this.audio.style.display = "none"
