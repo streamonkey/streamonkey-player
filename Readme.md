@@ -2,7 +2,7 @@
 
 This module provides a JS client library to connect to a radio stream hosted by [streaMonkey](https://www.streamonkey.de/en). It connects to the stream, fetches the history and the current title.
 
-Optionally, it uses the iTunes Search Api to get cover URLs for each audio. 
+Optionally, you can provide a URL from where it fetches the cover arts per title.
 ## include
 
 this module exports `StreamPlayer`
@@ -10,12 +10,12 @@ this module exports `StreamPlayer`
 ```ts
 import {StreamPlayer} from "streamonkey-player"
 ```
-
+<!-- 
 alternatively there is a Browser ready version available for inclusion via a script Tag
 
 ```html
 <script src="https://player.streamonkey.net/streamplayer.js"></script>
-```
+``` -->
 
 Or in this modules `browser` folder
 
@@ -30,13 +30,11 @@ const player = new StreamPlayer("channel", {
 where `options` are defined as follows:
 
 ```ts
-type ArtworkSize = `${number}x${number}`
-
 interface Options {
-    // whether to fetch the covers, default: true
-    useCovers: boolean                  
-    // cover size, default: "400x400"
-    coverSize: ArtworkSize              
+    covers?: {
+        URL?: string         // the backend to use
+        fallback?: string    // fallback image URL
+    } | null            
     // the aggregator to use, this must be set, e.g. "Website"
     aggregator: string                  
     // whether to use the systems media control
@@ -80,7 +78,7 @@ both times the returned Metadata is structured as follows:
 export interface Meta {
     title: string
     artist: string
-    coverURL: string // url for the album cover, either downloaded or the fallbackURL
+    cover: any // the response of your provided cover endpoint
 }
 ```
 
@@ -107,8 +105,19 @@ loop()
 
 ## Coverarts
 
-if the coverarts are used, they are fetched from `player.streamonkey.net` which acts as a Proxy to iTunes search API.
-Currently, the returned coverarts all point to iTunes' CDN 
+To use this library with coverarts, provide a URL to the options. This endpoint will be called as follows, if the song was "Enemy" by "Imagine Dragons" for Example:
+
+```
+http://example.com/audios?artist=Imagine%20Dragons&title=Enemy
+```
+
+The response of this endpoint has to be a URL to the actual image, e.g:
+
+```
+https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/fd/78/f0/fd78f070-5a95-e509-c362-0f362f5ddca9/source/100x100bb.jpg
+```
+
+If this request returns a non 200 response, then the fallback URL will be used.
 
 ## Advanced Usage
 

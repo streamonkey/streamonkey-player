@@ -14,15 +14,6 @@ const noCache = () => {
     return Math.random().toString().slice(2)
 }
 
-interface CoverResponse {
-    resultCount: number
-    results: Result[]
-}
-
-interface Result {
-    artworkUrl100: string
-}
-
 interface HistoryEntryRaw {
     LiveStreamId: string
     InsertDate: string
@@ -34,18 +25,17 @@ interface HistoryEntryRaw {
 export interface Meta {
     title: string
     artist: string
-    coverURL: string
+    cover: any
     time: Date
 }
 
-type ArtworkSize = `${number}x${number}`
-
 export interface Options {
-    useCovers?: boolean
-    coverSize?: ArtworkSize
+    covers?: {
+        URL?: string
+        fallback?: string
+    } | null
     aggregator: string
     useMediaSession?: boolean
-    fallbackCover?: string
     queryParams?: Record<string, string>
 }
 
@@ -58,11 +48,9 @@ type FullOptions = Required<Options>
 type DefaultOptions = Omit<FullOptions, "aggregator">
 
 const defaultOptions: DefaultOptions = {
-    coverSize: "400x400",
-    useCovers: true,
     useMediaSession: true,
-    fallbackCover: "https://player.streamonkey.net/logo_monkey.svg",
-    queryParams: {}
+    queryParams: {},
+    covers: null
 }
 
 /**
@@ -276,11 +264,11 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this.socket.addEventListener("message", async (e: MessageEvent<string>) => {
             const json: SocketMeta = JSON.parse(e.data)
 
-            const cover = json.cover_url != "" ? json.cover_url : await this.getCoverURL(json.title, json.artist)
+            const cover = await this.getCoverURL(json.title, json.artist)
 
             this.dispatchEvent("currentchange", {
                 artist: json.artist,
-                coverURL: cover,
+                cover,
                 title: json.title,
                 time: new Date()
             })
@@ -291,35 +279,41 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
                 navigator.mediaSession!.metadata = new MediaMetadata({
                     title: json.title,
                     artist: json.artist,
-                    artwork: [
-                        { src: cover, sizes: "400x400" },
-                    ]
+                    artwork: cover ? [
+                        { src: cover },
+                    ] : undefined
                 })
             }
         })
     }
 
     private getCoverURL = async (title: string, artist: string) => {
-        if (!this.options.useCovers) {
-            return this.options.fallbackCover
+        if (!this.options.covers) {
+            return null
         }
 
-        const res = await fetch(`https://player.streamonkey.net/coverart?search=${encodeURIComponent(artist + " " + title)}`, {
-            mode: "cors"
-        })
+        if (!this.options.covers.URL) {
+            return this.options.covers.fallback
+        }
+
+        let url
 
         try {
-            const json: CoverResponse = await res.json()
+            url = new URL(this.options.covers.URL)
+        } catch (e) {
+            url = new URL(this.options.covers.URL, location.origin)
+        }
 
-            const first = json.results[0]
+        url.searchParams.set("title", title)
+        url.searchParams.set("artist", artist)
 
-            if (first != undefined) {
-                return first.artworkUrl100.replace("100x100", this.options.coverSize)
-            }
+        const res = await fetch(url.toString())
 
-        } catch (e) { }
-
-        return this.options.fallbackCover
+        if (res.status != 200) {
+            return this.options.covers.fallback
+        } else {
+            return await res.text()
+        }
     }
 
     private async getHistory() {
@@ -341,7 +335,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             return {
                 title: v.MetaSong,
                 artist: v.MetaArtist,
-                coverURL: cover,
+                cover: cover,
                 time: new Date(v.InsertDate)
             }
         }))
