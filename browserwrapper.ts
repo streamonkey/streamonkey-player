@@ -1,4 +1,4 @@
-import { StreamPlayer } from "./streamplayer.js"
+import { StreamController } from "./streamcontroller.js"
 
 //@ts-ignore
-window.StreamPlayer = StreamPlayer
+window.StreamPlayer = StreamController

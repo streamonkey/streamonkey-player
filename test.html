@@ -19,7 +19,7 @@
     <script lang="js">
 
         let history = []
-
+        StreamPlayer.loadbalancer = "edge91.streamonkey.net"
         const streamPlayer = new StreamPlayer("absolut-top", {
             aggregator: "Test"
         })
@@ -60,7 +60,7 @@
             console.log(fftData);
         }
 
-        setInterval(loop, 1000)
+        //setInterval(loop, 1000)
     </script>
 </body>
 

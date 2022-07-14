@@ -1,5 +1,12 @@
+/* 
+Entry Point  
+*/
 import { TypedEmitter } from "./typedEventTarget.js"
 import { MyStats, SocketMeta } from "./types.js"
+import { StreamProvider } from "./streamProvider/streamprovider.js"
+import { MetaInfoHelper } from "./metaInfo/metaInfoHelper.js"
+import { MediaSourcePlayer } from "./streamPlayers/mediaSourcePlayer.js"
+import { StreamPlayer } from "./streamPlayers/streamPlayer.js"
 
 //@ts-ignore
 const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext
@@ -29,6 +36,10 @@ export interface Meta {
     time: Date
 }
 
+interface MetaTextUpdate {
+    metaText: Uint8Array
+}
+
 export interface Options {
     covers?: {
         URL?: string
@@ -42,6 +53,8 @@ export interface Options {
 interface MetaEvents {
     currentchange: Meta
     historychange: Meta[]
+    metatextupdate: MetaTextUpdate
+
 }
 
 type FullOptions = Required<Options>
@@ -58,7 +71,7 @@ const defaultOptions: DefaultOptions = {
  * - `currentchange`: when the current song changes
  * - `historychange`: when the history changes
  */
-export class StreamPlayer extends TypedEmitter<MetaEvents> {
+export class StreamController extends TypedEmitter<MetaEvents> {
     private ctx = new AudioContext()
     private gain = this.ctx.createGain()
     private analyzer = this.ctx.createAnalyser()
@@ -72,6 +85,10 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private src: MediaElementAudioSourceNode | null = null
     private lbRes: Response | null = null
 
+    private streamProvider: StreamProvider
+    private streamPlayer: StreamPlayer = new MediaSourcePlayer('audio/aac') //TODO: implement logic for switching between player types
+
+
     get response() {
         return this.lbRes
     }
@@ -83,13 +100,13 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     public static loadbalancer = "frontend.streamonkey.net"
 
     private async initURLs() {
-        const lbURL = new URL(`https://${StreamPlayer.loadbalancer}/${this.channel}`)
+        const lbURL = new URL(`https://${StreamController.loadbalancer}/${this.channel}`)
 
         Object.entries(this.options.queryParams).forEach(([k, v]) => lbURL.searchParams.set(k, v))
 
         lbURL.searchParams.set("aggregator", this.options.aggregator)
 
-        this.historyurl = `https://${StreamPlayer.loadbalancer}/${this.channel}/history`
+        this.historyurl = `https://${StreamController.loadbalancer}/${this.channel}/history`
 
         this.lbRes = await fetch(lbURL.toString(), { method: "HEAD" })
 
@@ -128,6 +145,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this.getHistory()
 
         this.setMediaSession()
+
+        this.streamProvider = new StreamProvider(StreamController.loadbalancer, this.channel, this.options.aggregator, this.options.queryParams)
     }
 
     private _playing = false
@@ -173,7 +192,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         url.searchParams.set("nocache", noCache())
 
-        this.audio.src = url.toString()
+        //this.audio.src = url.toString()
 
         this.audio.volume = 1
 
@@ -186,7 +205,30 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             this.connectWebsocket().catch(() => { })
         })
 
-        this.audio.play()
+        const metaInfoHelper = new MetaInfoHelper()
+
+        this.streamProvider.addEventListener("codecupdate", (codecUpdateEvent) => {
+            navigator.mediaCapabilities.decodingInfo({ type: "media-source", audio: { contentType: "audio/aac" } }).then((res) => {
+                console.log(res)
+            })
+        })
+
+        this.streamProvider.addEventListener("soundstreamupdate", (soundUpdateEvent) => {
+            this.streamPlayer.pushSoundChunk(soundUpdateEvent.detail.soundStream)
+        })
+
+        this.streamProvider.addEventListener("metatextupdate", (metaTextEvent) => {
+            if (this.streamPlayer) {
+                metaInfoHelper.startMetaTextTimer(metaTextEvent.detail.metaText, this.streamPlayer.bufferLengthSeconds);
+            }
+
+        })
+        this.streamProvider.start()
+
+        this.streamPlayer.connect(this.gain)
+        this.streamPlayer.start()
+
+        //this.audio.play()
 
         this._playing = true
     }
@@ -197,6 +239,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
      * @returns
      */
     public stop() {
+        this.streamProvider.stop()
         if (!this._playing) return
 
         this.socket?.close()

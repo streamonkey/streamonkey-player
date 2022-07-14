@@ -1,6 +1,6 @@
-import { StreamPlayer } from "./streamplayer.js"
+import { StreamController } from "./streamcontroller.js"
 
-const player = new StreamPlayer("foo", {
+const player = new StreamController("foo", {
     aggregator: ""
 })
 
