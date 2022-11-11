@@ -42,6 +42,7 @@ export interface Options {
 interface MetaEvents {
     currentchange: Meta
     historychange: Meta[]
+    ended: void
 }
 
 type FullOptions = Required<Options>
@@ -186,9 +187,15 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             this.connectWebsocket().catch(() => { })
         })
 
+        this.audio.addEventListener("ended", () => {
+            this.dispatchEvent("ended")
+        })
+
         this.audio.play()
 
         this._playing = true
+
+        this.setMediaSession()
     }
 
     /**
@@ -219,8 +226,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private setMediaSession() {
         if (this.options.useMediaSession && "mediaSession" in navigator && navigator.mediaSession) {
             navigator.mediaSession.setActionHandler("play", () => this.play())
-            navigator.mediaSession.setActionHandler("pause", this.stop)
-            navigator.mediaSession.setActionHandler("stop", this.stop)
+            navigator.mediaSession.setActionHandler("pause", () => this.stop())
+            navigator.mediaSession.setActionHandler("stop", () => this.stop())
         }
     }
 
