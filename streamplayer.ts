@@ -189,6 +189,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         this.audio.addEventListener("ended", () => {
             this.dispatchEvent("ended")
+
+            this.stop()
         })
 
         this.audio.play()
