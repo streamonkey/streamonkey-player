@@ -21,13 +21,21 @@ Or in this modules `browser` folder
 
 ## Basic Usage
 
+For basic usage, do the following and replace the `<mount-name>` and the `<aggregator name>` with your desired mount and aggregator. (see [player.html](./player.html))
+
 ```ts
-const player = new StreamPlayer("channel", {
-    aggregator: "Website"
+const play = document.getElementById()
+
+const player = new StreamPlayer("<mount-name>", {
+    aggregator: "<aggregator name>"
 })
 ```
 
-where `options` are defined as follows:
+## Advanced Usage
+
+### Additional options
+
+the Options for the constructor are defined as follows:
 
 ```ts
 interface Options {
@@ -46,13 +54,7 @@ interface Options {
 }
 ```
 
-The instance exposes `play()` and `stop()` methods to start and stop the stream
-
-`play()` accepts an optional `Date` instance that will be used for timeshifting
-
-the instances `volume` property is a getter and setter for the volume of the stream. Recommended values are 0-1, but it will accept more
-
-## Events
+### Events
 
 The instance of the `StreamPlayer` is an `EventEmitter` and dispatches 2 Custom Events:
 
@@ -82,7 +84,7 @@ export interface Meta {
 }
 ```
 
-## Visualization Data
+### Visualization Data
 
 internally, this module uses the [Web AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) and specifically the [AnalyzerNode](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) to get the Frequency Data.
 
@@ -103,7 +105,7 @@ function loop() {
 loop()
 ```
 
-## Coverarts
+### Coverarts
 
 To use this library with coverarts, provide a URL to the options. This endpoint will be called as follows, if the song was "Enemy" by "Imagine Dragons" for Example:
 
@@ -118,8 +120,6 @@ https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/fd/78/f0/fd78f070-5a95-e509
 ```
 
 If this request returns a non 200 response, then the fallback URL will be used.
-
-## Advanced Usage
 
 ### Override the used domain:
 

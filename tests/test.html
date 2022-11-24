@@ -6,7 +6,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Test</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <script src='browser/streamplayer.js'></script>
+    <script src='../browser/streamplayer.js'></script>
 </head>
 
 <body>
@@ -25,12 +25,12 @@
         })
 
         streamPlayer.addEventListener("currentchange", (e) => {
-            console.log(e.detail);
+            console.log(e.detail)
         })
 
         streamPlayer.addEventListener("historychange", (e) => {
             history = e.detail
-            console.log(e.detail);
+            console.log(e.detail)
         })
 
         const play = document.querySelector("#play")
@@ -57,7 +57,7 @@
         function loop() {
             streamPlayer.fft(fftData)
 
-            console.log(fftData);
+            console.log(fftData)
         }
 
         setInterval(loop, 1000)

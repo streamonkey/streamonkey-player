@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>My streaMonkey Player</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src='browser/streamplayer.js'></script>
+</head>
+
+<body>
+    <h1>streaMonkey test player</h1>
+    <button id="play">Play</button>
+    <button id="stop">Stop</button>
+    <span id="currenttitle">-</span>
+    <input type="range" min="0" max="1" step="0.01" id="vol">
+
+    <script lang="js">
+        // Create a new StreamPlayer instance
+        // insert the desired aggregator and mount name
+        const streamPlayer = new StreamPlayer("<mount-name>", {
+            aggregator: "<aggregator>"
+        })
+
+        const play = document.querySelector("#play")
+        const stop = document.querySelector("#stop")
+        const vol = document.querySelector("#vol")
+        const ct = document.querySelector("#currenttitle")
+
+        streamPlayer.addEventListener("currentchange", (e) => {
+            ct.innerHTML = `${e.detail.title} (${e.detail.artist})`
+        })
+
+        play.addEventListener("click", () => {
+            streamPlayer.play()
+        })
+        stop.addEventListener("click", () => {
+            streamPlayer.stop()
+        })
+
+        vol.addEventListener("input", () => {
+            streamPlayer.volume = vol.value
+        })
+
+        // for additional features, like history, coverarts and audio-visualization, see the documentation 
+    </script>
+</body>
+
+</html>
