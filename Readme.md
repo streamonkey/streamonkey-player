@@ -10,12 +10,6 @@ this module exports `StreamPlayer`
 ```ts
 import {StreamPlayer} from "streamonkey-player"
 ```
-<!-- 
-alternatively there is a Browser ready version available for inclusion via a script Tag
-
-```html
-<script src="https://player.streamonkey.net/streamplayer.js"></script>
-``` -->
 
 Or in this modules `browser` folder
 
@@ -24,10 +18,14 @@ Or in this modules `browser` folder
 For basic usage, do the following and replace the `<mount-name>` and the `<aggregator name>` with your desired mount and aggregator. (see [player.html](./player.html))
 
 ```ts
-const play = document.getElementById()
+const playBtn = document.getElementById()
 
 const player = new StreamPlayer("<mount-name>", {
     aggregator: "<aggregator name>"
+})
+
+playBtn.addEventListener("click", () => {
+    player.play()
 })
 ```
 
