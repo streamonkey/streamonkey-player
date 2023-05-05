@@ -69,11 +69,21 @@ export interface CurrentTrack {
 export interface SocketMeta {
     artist: string
     class: string
-    companion_ad: null
+    companion_ad: CompanionAd | null
     cover_data: null
     cover_url: string
     master_id: string
     start_time_unix: string
     title: string
     title_combined: string
+}
+
+export interface CompanionAd {
+    creative_id: string
+    resource_url: string
+    resource_type: string
+    click: string
+    click_tracking: string[]
+    view_tracking: string[]
+    resource_data: number[]
 }

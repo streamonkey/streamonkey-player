@@ -1,5 +1,5 @@
 import { TypedEmitter } from "./typedEventTarget.js"
-import { MyStats, SocketMeta } from "./types.js"
+import { CompanionAd, MyStats, SocketMeta } from "./types.js"
 
 //@ts-ignore
 const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext
@@ -27,6 +27,7 @@ export interface Meta {
     artist: string
     cover: any
     time: Date
+    companionAd: CompanionAd | null
 }
 
 export interface Options {
@@ -279,7 +280,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
                 artist: json.artist,
                 cover,
                 title: json.title,
-                time: new Date()
+                time: new Date(),
+                companionAd: json.companion_ad,
             })
 
             this.getHistory()
@@ -345,7 +347,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
                 title: v.MetaSong,
                 artist: v.MetaArtist,
                 cover: cover,
-                time: new Date(v.InsertDate)
+                time: new Date(v.InsertDate),
+                companionAd: null,
             }
         }))
 
