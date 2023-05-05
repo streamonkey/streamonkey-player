@@ -75,11 +75,24 @@ streamPlayer.addEventListener("historychange", (e) => {
 both times the returned Metadata is structured as follows:
 
 ```ts
-export interface Meta {
+interface Meta {
     title: string
     artist: string
-    cover: any // the response of your provided cover endpoint
+    cover: any
+    time: Date
+    companionAd: CompanionAd | null
 }
+
+interface CompanionAd {
+    creative_id: string
+    resource_url: string
+    resource_type: string
+    click: string
+    click_tracking: string[]
+    view_tracking: string[]
+    resource_data: number[]
+}
+
 ```
 
 ### Visualization Data
