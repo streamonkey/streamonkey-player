@@ -52,6 +52,17 @@ interface Options {
 }
 ```
 
+The `queryParams` in particular can be used to pass additional information to the streaming backend, e.g. companion ad data, as follows:
+
+```ts
+const player = new StreamPlayer("<mount-name>", {
+    aggregator: "<aggregator name>",
+    queryParams: {
+        "companionAds": "true",
+        "companion_zone_alias": "<zone1>,<zone2>,<zone3>,<zone4>,..."
+})
+```
+
 ### Events
 
 The instance of the `StreamPlayer` is an `EventEmitter` and dispatches 2 Custom Events:
