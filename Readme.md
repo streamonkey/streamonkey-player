@@ -3,6 +3,7 @@
 This module provides a JS client library to connect to a radio stream hosted by [streaMonkey](https://www.streamonkey.de/en). It connects to the stream, fetches the history and the current title.
 
 Optionally, you can provide a URL from where it fetches the cover arts per title.
+
 ## include
 
 this module exports `StreamPlayer`
@@ -11,7 +12,13 @@ this module exports `StreamPlayer`
 import {StreamPlayer} from "streamonkey-player"
 ```
 
-Or in this modules `browser` folder
+Or in this modules `browser` folder after you built it locally with `npm run build`.
+
+You could also use the [unpkg](https://unpkg.com/) CDN:
+
+```html
+<script src="https://unpkg.com/streamonkey-player/browser/streamplayer.js"></script>
+```
 
 ## Basic Usage
 
