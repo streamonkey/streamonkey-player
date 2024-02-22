@@ -113,6 +113,19 @@ interface CompanionAd {
 
 ```
 
+### stats for nerds
+
+the `StreamPlayer` instance has a `getSessionStats` function that returns a `Promise<MyStats>` (see [types.ts](./types.ts))
+
+```ts
+const stats = await streamPlayer.getSessionStats()
+
+// do something with the stats, e.g.:
+stats.SessionId // current session id
+stats.Codec // the codec used
+stats.Quality // the quality level of the stream
+```
+
 ### Visualization Data
 
 internally, this module uses the [Web AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) and specifically the [AnalyzerNode](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode) to get the Frequency Data.

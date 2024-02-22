@@ -15,9 +15,11 @@ export interface MyStats {
     UserAgent: string
     RequestQueryString: string
     CurrentItem: string
+    CurrentAdmarkerAmount: number
     VirtualBufferSeconds: number
     CurrentTrack: CurrentTrack
     GeoIPCountry: string
+    GeoIPState: string
     GeoIPCity: string
     GeoIPZip: string
     GeoIPLatitude: number
@@ -34,6 +36,9 @@ export interface MyStats {
     StreaMonkeyListenerId: string
     AdswizzListenerId: string
     AdswizzSessionId: string
+    AdswizzListenerIdByAdserver: null
+    AdswizzSessionIdByAdserver: Record<string, string>
+    UseMediationLayer: boolean
     StreamingHost: string
     PCR: number
     AdvertisementDuration: number
@@ -45,6 +50,7 @@ export interface MyStats {
     HTTPS: boolean
     NextPossibleInstreamAd: string
     InstreamGracetimeSeconds2: number
+    IsActiveSession: boolean
 }
 
 export interface CurrentTrack {

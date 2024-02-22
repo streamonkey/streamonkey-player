@@ -234,7 +234,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         }
     }
 
-    private async getSessionID(): Promise<string> {
+    public async getSessionStats(): Promise<MyStats> {
         await this.initialization
 
         if (!this._playing) throw new Error("Not playing")
@@ -244,14 +244,9 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             credentials: "include"
         })
 
-        if (res.status != 200) {
-            await sleep(1000)
-            return await this.getSessionID()
-        }
-
         const json: MyStats = await res.json()
 
-        return json.SessionId
+        return json
     }
 
     private connectWebsocket = async () => {
@@ -259,7 +254,11 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         if (!this.playing || this.getSocketurl == null) return
 
-        const sessionID = await this.getSessionID()
+        const sessionID = await this.getSessionStats().then(v => v.SessionId).catch(() => {
+            setTimeout(() => this.connectWebsocket(), 1000)
+
+            throw new Error("Couldn't get session ID")
+        })
 
         this.socket = new WebSocket(this.getSocketurl(sessionID))
 

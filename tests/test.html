@@ -58,6 +58,7 @@
             streamPlayer.fft(fftData)
 
             console.log(fftData)
+            streamPlayer.getSessionStats().then(console.log)
         }
 
         setInterval(loop, 1000)
