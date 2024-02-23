@@ -21,7 +21,8 @@
         let history = []
 
         const streamPlayer = new StreamPlayer("absolut-top", {
-            aggregator: "Test"
+            aggregator: "Test",
+            sendLocationUpdates: true,
         })
 
         streamPlayer.addEventListener("currentchange", (e) => {

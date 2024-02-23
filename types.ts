@@ -31,13 +31,13 @@ export interface MyStats {
     StreamId: string
     PrevSessionId: string
     LastUpdate: string
-    OSMReverseResponse: null
+    OSMReverseResponse: OSMReverseResponse | null
     FacebookInfo: null
     StreaMonkeyListenerId: string
     AdswizzListenerId: string
     AdswizzSessionId: string
     AdswizzListenerIdByAdserver: null
-    AdswizzSessionIdByAdserver: Record<string, string>
+    AdswizzSessionIdByAdserver: Record<string, string> | null
     UseMediationLayer: boolean
     StreamingHost: string
     PCR: number
@@ -51,6 +51,18 @@ export interface MyStats {
     NextPossibleInstreamAd: string
     InstreamGracetimeSeconds2: number
     IsActiveSession: boolean
+}
+
+export interface OSMReverseResponse {
+    place_id: number
+    licence: string
+    osm_type: string
+    osm_id: number
+    lat: string
+    lon: string
+    display_name: string
+    address: { [key: string]: string }
+    boundingbox: string[]
 }
 
 export interface CurrentTrack {

@@ -56,6 +56,8 @@ interface Options {
     fallbackCover: string               
     // additional query params in the URL
     queryParams: Record<string, string> 
+    // send location updates to the backend
+    sendLocationUpdates: boolean
 }
 ```
 

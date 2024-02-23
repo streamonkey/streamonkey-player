@@ -38,6 +38,7 @@ export interface Options {
     aggregator: string
     useMediaSession?: boolean
     queryParams?: Record<string, string>
+    sendLocationUpdates?: boolean
 }
 
 interface MetaEvents {
@@ -52,7 +53,8 @@ type DefaultOptions = Omit<FullOptions, "aggregator">
 const defaultOptions: DefaultOptions = {
     useMediaSession: true,
     queryParams: {},
-    covers: null
+    covers: null,
+    sendLocationUpdates: false
 }
 
 /**
@@ -199,6 +201,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this._playing = true
 
         this.setMediaSession()
+
+        this.startLocationUpdates()
     }
 
     /**
@@ -375,5 +379,34 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     fft(data: Uint8Array) {
         this.analyzer.getByteFrequencyData(data)
     }
-}
 
+    private startLocationUpdates() {
+        if (!this.options.sendLocationUpdates) return
+
+        const send = () => {
+            navigator.geolocation.getCurrentPosition(async pos => {
+                const url = new URL(this.statsurl)
+
+                const sessionID = await this.getSessionStats().then(v => v.SessionId)
+
+                url.pathname = `/updatelocation/${sessionID}/${pos.coords.latitude}/${pos.coords.longitude}/`
+
+                const res = await fetch(url, {
+                    method: "GET"
+                })
+
+                // 304 is send on too frequent updates
+                if (res.status == 200 || res.status == 304) {
+                    setTimeout(send, 10000)
+                }
+            }, () => { }, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0,
+
+            })
+        }
+
+        send()
+    }
+}
