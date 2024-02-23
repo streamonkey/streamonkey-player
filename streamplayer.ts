@@ -391,7 +391,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
                 url.pathname = `/updatelocation/${sessionID}/${pos.coords.latitude}/${pos.coords.longitude}/`
 
-                const res = await fetch(url, {
+                const res = await fetch(url.toString(), {
                     method: "GET"
                 })
 
