@@ -170,9 +170,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         let url = new URL(this.streamurl)
 
         if (time) {
-            const canAAC = this.audio.canPlayType("audio/aacp")
-
-            const codec = canAAC == "probably" ? "aacp" : "mp3"
+            const codec = "aacp"
 
             url.pathname = `/${this.channel}/stream/${codec}/${time.getUTCFullYear()}/${time.getUTCMonth() + 1}/${time.getUTCDate()}/${time.getUTCHours()}/${time.getUTCMinutes()}/${time.getUTCSeconds()}`
         }
