@@ -143,6 +143,8 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         return this._playing
     }
 
+    private currentSessionID: Promise<string> | null = null
+
     /**
      * start the playback of the stream
      * @param time the time of the stream to start at, if omitted will start at live
@@ -187,7 +189,11 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
 
         // connect the websocket only after the audio is loaded
         this.audio.addEventListener("loadeddata", () => {
+            this.currentSessionID = this.getSessionStats().then(v => v.SessionId)
+
             this.connectWebsocket().catch(() => { })
+
+            this.startLocationUpdates()
         })
 
         this.audio.addEventListener("ended", () => {
@@ -201,8 +207,6 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         this._playing = true
 
         this.setMediaSession()
-
-        this.startLocationUpdates()
     }
 
     /**
@@ -256,13 +260,9 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
     private connectWebsocket = async () => {
         this.socket?.close()
 
-        if (!this.playing || this.getSocketurl == null) return
+        if (!this.playing || this.getSocketurl == null || this.currentSessionID == null) return
 
-        const sessionID = await this.getSessionStats().then(v => v.SessionId).catch(() => {
-            setTimeout(() => this.connectWebsocket(), 1000)
-
-            throw new Error("Couldn't get session ID")
-        })
+        const sessionID = await this.currentSessionID
 
         this.socket = new WebSocket(this.getSocketurl(sessionID))
 
@@ -387,7 +387,9 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
             navigator.geolocation.getCurrentPosition(async pos => {
                 const url = new URL(this.statsurl)
 
-                const sessionID = await this.getSessionStats().then(v => v.SessionId)
+                if (!this.currentSessionID) return
+
+                const sessionID = await this.currentSessionID
 
                 url.pathname = `/updatelocation/${sessionID}/${pos.coords.latitude}/${pos.coords.longitude}/`
 
