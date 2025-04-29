@@ -32,6 +32,9 @@ export interface Meta {
 }
 
 export interface Options {
+    /**
+     * @deprecated covers is deprecated, please use your own way to lookup covers from the metadatas
+     */
     covers?: {
         URL?: string
         fallback?: string
@@ -300,7 +303,11 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         })
     }
 
+    /**
+     * @deprecated covers is deprecated, please use your own way to lookup covers from the metadatas
+     */
     private getCoverURL = async (title: string, artist: string) => {
+        console.warn("streamonkey-player StreamPlayer: getCoverURL is deprecated, please use your own way to lookup covers from the metadatas")
         if (!this.options.covers) {
             return null
         }
@@ -333,15 +340,16 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         await this.initialization
         const res = await fetch(this.historyurl)
 
-        const hist: HistoryEntryRaw[] = await res.json()
+        let hist: HistoryEntryRaw[] = await res.json()
 
         if (!Array.isArray(hist)) {
             this.history = []
             return
         }
 
-        this.history = await Promise.all(hist.map(async v => {
-            const cover = await this.getCoverURL(v.MetaSong, v.MetaArtist)
+        this.history = await Promise.all(hist.map(async (v, i) => {
+            // only get the cover for the last 40 songs. The whole history can reach easily up to 400 songs
+            const cover = i < 40 ? await this.getCoverURL(v.MetaSong, v.MetaArtist) : undefined
 
             return {
                 title: v.MetaSong,
@@ -394,7 +402,7 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
                     method: "GET"
                 })
 
-                // 304 is send on too frequent updates
+                // 304 is sent on too frequent updates
                 if (res.status == 200 || res.status == 304) {
                     setTimeout(send, 10000)
                 }

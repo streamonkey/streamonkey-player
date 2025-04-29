@@ -59,11 +59,7 @@ playBtn.addEventListener("click", () => {
 the Options for the constructor are defined as follows:
 
 ```ts
-interface Options {
-    covers?: {
-        URL?: string         // the backend to use
-        fallback?: string    // fallback image URL
-    } | null            
+interface Options {        
     // the aggregator to use, this must be set, e.g. "Website"
     aggregator: string                  
     // whether to use the systems media control
@@ -164,35 +160,6 @@ function loop() {
 
 loop()
 ```
-
-### Coverarts
-
-To use this library with coverarts, provide a URL to the options and a fallback URL that will be used if the response
-is not 200. E.g.:
-
-```ts
-const player = new StreamPlayer("<mount-name>", {
-    aggregator: "<aggregator name>",
-    covers: {
-        URL: "http://example.com/coverart",
-        fallback: "https://example.com/fallback.jpg"
-    }
-})
-```
-
-This endpoint will be called as follows, if the song was "Enemy" by "Imagine Dragons" for example:
-
-```
-http://example.com/coverart?artist=Imagine%20Dragons&title=Enemy
-```
-
-The response of this endpoint has to be a URL to the actual image, e.g:
-
-```
-https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/fd/78/f0/fd78f070-5a95-e509-c362-0f362f5ddca9/source/100x100bb.jpg
-```
-
-If this request returns a non 200 response, then the fallback URL will be used.
 
 ### Override the used domain:
 
