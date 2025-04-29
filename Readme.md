@@ -4,20 +4,36 @@ This module provides a JS client library to connect to a radio stream hosted by 
 
 Optionally, you can provide a URL from where it fetches the cover arts per title.
 
-## include
+## installing
 
-this module exports `StreamPlayer`
+### via npm 
+
+```bash
+npm install streamonkey-player
+```
+
+This module exports `StreamPlayer`. Import it like so:
 
 ```ts
 import {StreamPlayer} from "streamonkey-player"
 ```
 
-Or in this modules `browser` folder after you built it locally with `npm run build`.
+### via unpkg
 
 You could also use the [unpkg](https://unpkg.com/) CDN:
 
 ```html
 <script src="https://unpkg.com/streamonkey-player/browser/streamplayer.js"></script>
+```
+
+If you are using unpkg, please note that you depend on another service that [may have outages](https://github.com/unpkg/unpkg/issues/444).
+
+### local
+
+You can also download the [streamplayer.js](https://unpkg.com/streamonkey-player/browser/streamplayer.js) file and include it in your project. Please note that it is your responsibility to update the file when a new version is released.
+
+```html
+<script src="path/to/streamplayer.js"></script>
 ```
 
 ## Basic Usage
@@ -151,10 +167,23 @@ loop()
 
 ### Coverarts
 
-To use this library with coverarts, provide a URL to the options. This endpoint will be called as follows, if the song was "Enemy" by "Imagine Dragons" for Example:
+To use this library with coverarts, provide a URL to the options and a fallback URL that will be used if the response
+is not 200. E.g.:
+
+```ts
+const player = new StreamPlayer("<mount-name>", {
+    aggregator: "<aggregator name>",
+    covers: {
+        URL: "http://example.com/coverart",
+        fallback: "https://example.com/fallback.jpg"
+    }
+})
+```
+
+This endpoint will be called as follows, if the song was "Enemy" by "Imagine Dragons" for example:
 
 ```
-http://example.com/audios?artist=Imagine%20Dragons&title=Enemy
+http://example.com/coverart?artist=Imagine%20Dragons&title=Enemy
 ```
 
 The response of this endpoint has to be a URL to the actual image, e.g:
