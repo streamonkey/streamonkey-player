@@ -98,10 +98,32 @@ export interface SocketMeta {
 
 export interface CompanionAd {
     creative_id: string
+    /**
+     * resource_url contains the URL of the companion ad to download the media
+     * this is most likely not allowed due to CORS restrictions, so use the
+     * resource_data field instead
+     */
     resource_url: string
+    /**
+     * resource_type contains the mime type of the companion ad
+     * e.g. image/png, image/jpeg
+     */
     resource_type: string
+    /**
+     * click contain the URL where the user should be redirected to when
+     * clicking the companion ad
+     */
     click: string
+    /**
+     * click_tracking contains the URLs where the click should be tracked
+     */
     click_tracking: string[]
+    /**
+     * view_tracking contains the URLs where the view should be tracked
+     */
     view_tracking: string[]
-    resource_data: number[]
+    /**
+     * resource_data contains the base64 encoded data of the companion ad
+     */
+    resource_data: string
 }
