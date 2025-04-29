@@ -1,5 +1,6 @@
 import { TypedEmitter } from "./typedEventTarget.js"
 import { CompanionAd, MyStats, SocketMeta } from "./types.js"
+export * from "./types.js"
 
 //@ts-ignore
 const AudioContext = globalThis.AudioContext || globalThis.webkitAudioContext
@@ -332,14 +333,12 @@ export class StreamPlayer extends TypedEmitter<MetaEvents> {
         await this.initialization
         const res = await fetch(this.historyurl)
 
-        const json: HistoryEntryRaw[] = await res.json()
+        const hist: HistoryEntryRaw[] = await res.json()
 
-        if (!Array.isArray(json)) {
+        if (!Array.isArray(hist)) {
             this.history = []
             return
         }
-
-        const hist = json.slice(0, 20)
 
         this.history = await Promise.all(hist.map(async v => {
             const cover = await this.getCoverURL(v.MetaSong, v.MetaArtist)
